@@ -1,0 +1,8 @@
+{
+  "id": "json-plugin",
+  "version": "1.0.0",
+  "pluginName": "JSON",
+  "description": "json格式化工具",
+  "view": "./dist/web/index.html",
+  "backend": "./dist/plugin/index.js"
+}
