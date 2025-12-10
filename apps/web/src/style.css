@@ -9,13 +9,13 @@ body,
 }
 
 .bottom-nav {
-  height: 50px;
+  height: 40px;
   background-color: #1e1e1e;
   border-top: 1px solid #3e3e3e;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 0 16px;
+  padding: 0 14px;
 }
 
 .nav-btn {
@@ -25,7 +25,9 @@ body,
   cursor: pointer;
   padding: 8px;
   border-radius: 4px;
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -38,4 +40,74 @@ body,
 
 .nav-btn:active {
   background-color: #3a3a3a;
+}
+
+.nav-btn {
+  position: relative;
+}
+
+.nav-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: var(--tooltip-left, 50%);
+  right: var(--tooltip-right, auto);
+  transform: var(--tooltip-transform, translateX(-50%)) translateX(-8px);
+  background-color: #333333;
+  color: #ffffff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  z-index: 1000;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.nav-btn::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: var(--tooltip-left, 50%);
+  right: var(--tooltip-right, auto);
+  transform: var(--tooltip-transform, translateX(-50%)) translateX(-8px);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid #333333;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.nav-btn:hover::after,
+.nav-btn:hover::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+.nav-btn::after {
+  animation: tooltip-fade-in 0.2s ease-out;
+}
+
+@keyframes tooltip-fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.nav-btn:hover::after {
+  opacity: 1;
+  visibility: visible;
 }

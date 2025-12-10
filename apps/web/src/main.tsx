@@ -1,19 +1,62 @@
 import { createRoot } from "react-dom/client";
 import "./style.css";
-import MonacoEditor, { MonacoEditorHandle } from "react-monaco-editor";
-import { useRef, useState } from "react";
-
+import MonacoEditor, { loader, OnMount } from "@monaco-editor/react";
+import { useRef, useState, useEffect } from "react";
+import * as monaco from "monaco-editor";
+import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
+import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
+import { Braces } from "lucide-react";
+loader.config({ monaco });
+self.MonacoEnvironment = {
+  getWorker(_, label) {
+    if (label === "json") {
+      return new jsonWorker();
+    }
+    return new editorWorker();
+  },
+};
 const App = () => {
   const [code, setCode] = useState<string>(``);
-  const monacoEditorRef = useRef<MonacoEditorHandle>(null);
+  const monacoEditorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const updateTooltipPosition = () => {
+      if (!buttonRef.current) return;
+
+      const button = buttonRef.current;
+      const rect = button.getBoundingClientRect();
+
+      if (rect.left < 100) {
+        button.style.setProperty("--tooltip-left", "0px");
+        button.style.setProperty("--tooltip-transform", "none");
+      } else if (rect.right > window.innerWidth - 100) {
+        button.style.setProperty("--tooltip-left", "auto");
+        button.style.setProperty("--tooltip-right", "10px");
+        button.style.setProperty("--tooltip-transform", "none");
+      } else {
+        button.style.setProperty("--tooltip-left", "50%");
+        button.style.setProperty("--tooltip-right", "auto");
+        button.style.setProperty("--tooltip-transform", "translateX(-50%)");
+      }
+    };
+
+    window.addEventListener("resize", updateTooltipPosition);
+    updateTooltipPosition();
+
+    return () => window.removeEventListener("resize", updateTooltipPosition);
+  }, []);
   function onChange(value: string | undefined) {
     if (!value) return;
     setCode(value);
   }
   function format() {
-    const model = monacoEditorRef.current?.editor.getModel();
-    model?.setValue(JSON.stringify(JSON.parse(model.getValue()), null, 2));
+    monacoEditorRef.current?.getAction("editor.action.formatDocument")?.run();
   }
+  const handleEditorDidMount: OnMount = (editor) => {
+    monacoEditorRef.current =
+      editor as unknown as monaco.editor.IStandaloneCodeEditor;
+  };
   return (
     <div
       style={{
@@ -25,26 +68,30 @@ const App = () => {
     >
       <div style={{ flex: 1 }}>
         <MonacoEditor
-          ref={monacoEditorRef}
           width="100%"
           height="100%"
-          language="json"
+          defaultLanguage="json"
           theme="vs-dark"
-          value={code}
+          defaultValue={code}
           options={{
             selectOnLineNumbers: true,
             insertSpaces: true,
             tabSize: 2,
             placeholder: "input json here",
+            fontSize: 16,
           }}
           onChange={onChange}
+          onMount={handleEditorDidMount}
         />
       </div>
       <div className="bottom-nav">
-        <button className="nav-btn" onClick={format}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M4 7h16M4 12h16M4 17h16M9 7V4M15 7V4M9 17v3M15 17v3"/>
-          </svg>
+        <button
+          ref={buttonRef}
+          className="nav-btn"
+          onClick={format}
+          data-tooltip="格式化JSON"
+        >
+          <Braces size={20} />
         </button>
       </div>
     </div>

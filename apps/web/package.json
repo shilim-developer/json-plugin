@@ -10,10 +10,12 @@
     "lint": "eslint \"src/**/*.ts\""
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@repo/ui": "workspace:*",
+    "lucide-react": "^0.556.0",
+    "monaco-editor": "^0.55.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-monaco-editor": "^0.59.0"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

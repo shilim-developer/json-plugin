@@ -1,5 +1,4 @@
 {
-  "private": true,
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
@@ -12,5 +11,12 @@
     "turbo": "^2.6.1"
   },
   "packageManager": "pnpm@8.15.6",
-  "name": "json-plugin"
+  "name": "json-plugin",
+  "version": "1.0.1",
+  "files": [
+    "dist/",
+    "README.md",
+    "plugin.json",
+    "package.json"
+  ]
 }
