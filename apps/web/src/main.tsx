@@ -5,7 +5,7 @@ import { useRef, useState, useEffect } from "react";
 import * as monaco from "monaco-editor";
 import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
-import { Braces } from "lucide-react";
+import { Braces, Copy } from "lucide-react";
 loader.config({ monaco });
 self.MonacoEnvironment = {
   getWorker(_, label) {
@@ -17,6 +17,7 @@ self.MonacoEnvironment = {
 };
 const App = () => {
   const [code, setCode] = useState<string>(``);
+  const [copyTooltip, setCopyTooltip] = useState<string>("复制JSON");
   const monacoEditorRef = useRef<monaco.editor.IStandaloneCodeEditor>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -52,6 +53,27 @@ const App = () => {
   }
   function format() {
     monacoEditorRef.current?.getAction("editor.action.formatDocument")?.run();
+  }
+  function copyToClipboard() {
+    if (monacoEditorRef.current) {
+      const value = monacoEditorRef.current.getValue();
+      navigator.clipboard
+        .writeText(value)
+        .then(() => {
+          console.log("复制成功");
+          setCopyTooltip("复制成功");
+          setTimeout(() => {
+            setCopyTooltip("复制JSON");
+          }, 2000);
+        })
+        .catch((err) => {
+          console.error("复制失败:", err);
+          setCopyTooltip("复制失败");
+          setTimeout(() => {
+            setCopyTooltip("复制JSON");
+          }, 2000);
+        });
+    }
   }
   const handleEditorDidMount: OnMount = (editor) => {
     monacoEditorRef.current =
@@ -92,6 +114,19 @@ const App = () => {
           data-tooltip="格式化JSON"
         >
           <Braces size={20} />
+        </button>
+        <button
+          className="nav-btn"
+          onClick={copyToClipboard}
+          data-tooltip={copyTooltip}
+          style={
+            {
+              "--tooltip-left": "50%",
+              "--tooltip-transform": "translateX(-50%)",
+            } as React.CSSProperties
+          }
+        >
+          <Copy size={20} />
         </button>
       </div>
     </div>
